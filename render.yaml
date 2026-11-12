@@ -1,0 +1,42 @@
+# Render Blueprint for the API. Free plan: the service sleeps after 15 minutes idle and takes
+# up to a minute to wake; the web app says so while it waits.
+services:
+  - type: web
+    name: fieldcard-api
+    runtime: docker
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./api
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ENV
+        value: prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_PATH
+        value: /api/auth
+      - key: TRUST_PROXY_HOPS
+        value: "1"
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: SIGNUP_ENABLED
+        value: "false"
+      - key: DEMO_ENABLED
+        value: "true"
+      # Set these in the Render dashboard (sync: false keeps them out of git):
+      - key: DATABASE_URL        # Supabase DIRECT or session-pooler string, not the transaction pooler (migrations)
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: CORS_ORIGINS        # your Vercel URL; the /api proxy makes calls same-origin anyway
+        sync: false

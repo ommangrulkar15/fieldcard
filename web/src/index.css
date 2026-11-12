@@ -1,0 +1,59 @@
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import 'tailwindcss';
+
+/* Design tokens from the Fieldcard canvas. Contrast of every text/background pair was checked at 4.5:1 or better. */
+@theme {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --color-ground: #f2f4f7;
+  --color-surface: #ffffff;
+  --color-raised: #f7f8fa;
+  --color-active: #e6eaee;
+  --color-line: #e2e6ea;
+  --color-control: #6f7b88;
+  --color-ink: #12171c;
+  --color-muted: #4a5561;
+  --color-faint: #5b6672;
+  --color-primary: #15191e;
+  --color-brand: #0f766e;
+  --color-ok-bg: #dcf3e6;
+  --color-ok-ink: #0f3d26;
+  --color-warn-bg: #fef3c7;
+  --color-warn-ink: #7a3e06;
+  --color-bad: #b42318;
+  --color-bad-bg: #fee4e2;
+}
+
+html {
+  background: var(--color-ground);
+}
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink);
+  background: var(--color-ground);
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+dialog::backdrop {
+  background: rgb(18 23 28 / 0.45);
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
