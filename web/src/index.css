@@ -10,17 +10,17 @@
 @theme {
   --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --color-ground: #f2f4f7;
+  --color-ground: #f4f2fa;
   --color-surface: #ffffff;
-  --color-raised: #f7f8fa;
-  --color-active: #e6eaee;
-  --color-line: #e2e6ea;
-  --color-control: #6f7b88;
-  --color-ink: #12171c;
-  --color-muted: #4a5561;
-  --color-faint: #5b6672;
-  --color-primary: #15191e;
-  --color-brand: #0f766e;
+  --color-raised: #f7f5fc;
+  --color-active: #e8e3f4;
+  --color-line: #e4dff0;
+  --color-control: #7a7396;
+  --color-ink: #2b2250;
+  --color-muted: #524b73;
+  --color-faint: #605a80;
+  --color-primary: #43386b;
+  --color-brand: #5e4f8f;
   --color-ok-bg: #dcf3e6;
   --color-ok-ink: #0f3d26;
   --color-warn-bg: #fef3c7;
@@ -56,4 +56,88 @@ dialog::backdrop {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* The demo runs inside a framed box on the landing page. `transform` makes the box the containing
+   block for `position: fixed`, so the phone's sticky Save bar stays inside it. */
+.demo-frame {
+  transform: translateZ(0);
+}
+.demo-frame .fixed {
+  bottom: 0 !important;
+}
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+::placeholder {
+  color: #5a6571;
+  opacity: 1;
+}
+
+/* ============================================================
+   App polish — modern glass + gloss, kept legible for the field.
+   Translucency stays high-opacity; blur is a nicety, not a crutch.
+   ============================================================ */
+.app-ground {
+  background-color: var(--color-ground);
+  background-image:
+    radial-gradient(48rem 32rem at 100% -10%, rgb(94 79 143 / 0.08), transparent 55%),
+    radial-gradient(40rem 40rem at -10% 110%, rgb(213 204 238 / 0.35), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Frosted bars: top header and the mobile save bar. */
+.app-glass {
+  background: rgb(255 255 255 / 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-glass { background: rgb(255 255 255 / 0.97); }
+}
+
+/* Cards: a faint top-to-bottom sheen and a soft lifted shadow. */
+.app-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fcfbfe 100%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 1px 2px rgb(43 34 80 / 0.04),
+    0 10px 24px -18px rgb(43 34 80 / 0.3);
+}
+
+/* Primary button: glossy gradient + edge light, instead of a flat slab. */
+.app-btn-primary {
+  background-image: linear-gradient(180deg, var(--color-primary-top, #4e4280) 0%, var(--color-primary) 100%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.18) inset,
+    0 8px 18px -10px rgb(43 34 80 / 0.7);
+}
+.app-btn-primary:hover {
+  background-image: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-hover, #3a3159) 100%);
+}
+
+/* Inputs: a hair of inner shadow so fields read as recessed, glossy. */
+.app-field {
+  box-shadow: inset 0 1px 2px rgb(43 34 80 / 0.05);
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-ground { background-attachment: scroll; }
+}
+
+/* ---- App motion ---- */
+@keyframes app-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.app-enter { animation: app-enter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes app-pop { 0% { opacity: 0; transform: scale(0.96); } 60% { transform: scale(1.015); } 100% { opacity: 1; transform: scale(1); } }
+.app-pop { animation: app-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+tbody tr.app-row { transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease; }
+@media (hover: hover) { tbody tr.app-row:hover { box-shadow: inset 2px 0 0 var(--color-brand); } }
+@media (prefers-reduced-motion: reduce) {
+  .app-enter, .app-pop { animation: none; }
+  tbody tr.app-row { transition: none; }
 }

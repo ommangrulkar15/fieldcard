@@ -4,6 +4,17 @@ Job cards for field crews. A crew member fills in a form on their phone; the off
 
 > Fieldcard is a portfolio project. Every name, place and amount in the demo is invented. It was designed after a real job-tracking tool built for an electrical contractor, but contains none of that client's data, name or branding.
 
+## Live demo (GitHub Pages)
+
+The `pages` workflow publishes an interactive demo: the real React screens running against a small
+in-browser stand-in for the API (`web/src/demo/server.ts`). No server, no database, nothing saved; a reload
+resets it. Sign-in, form setup, Excel export, the PDF job card and the activity log are only in the full app.
+
+To publish: make the repo public, then **Settings, Pages, Source: GitHub Actions**, and push to `main`.
+The site appears at `https://<your-username>.github.io/<repo-name>/`.
+Run it locally with `cd web && VITE_DEMO=1 npm run dev`.
+Footer links live in `web/src/landing/links.ts`.
+
 ## What it does
 
 - **Job Entry** — a form made from the workspace's own fields, grouped into sections. Job numbers are assigned by the server.

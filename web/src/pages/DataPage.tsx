@@ -7,18 +7,10 @@ import { DownloadIcon, SearchIcon } from '../components/icons'
 import { PhotoGallery } from '../components/Photos'
 import { ApiError, del, get, getBlob, saveBlob } from '../lib/api'
 import { columnHeader, displayValue, EMPTY } from '../lib/format'
+import { useFields } from '../lib/queries'
 import type { Field, Job, JobPage } from '../lib/types'
 
 const PAGE_SIZE = 10
-
-export function useFields(workspaceId: string | undefined) {
-  return useQuery({
-    queryKey: ['fields', workspaceId],
-    queryFn: () => get<Field[]>(`/workspaces/${workspaceId}/fields`, { include_hidden: 'false' }),
-    enabled: !!workspaceId,
-    staleTime: 60_000,
-  })
-}
 
 function useDebounced<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -45,11 +37,13 @@ export default function DataPage() {
   const q = useDebounced(search.trim(), 300)
   const [sort, setSort] = useState('date')
   const [order, setOrder] = useState<'asc' | 'desc'>('desc')
-  const [page, setPage] = useState(1)
+  // The page belongs to the filters it was chosen under; changing them shows page 1 without an extra fetch.
+  const filterKey = `${q}|${sort}|${order}|${workspaceId}`
+  const [pageState, setPageState] = useState({ key: filterKey, page: 1 })
+  const page = pageState.key === filterKey ? pageState.page : 1
+  const setPage = (next: number) => setPageState({ key: filterKey, page: next })
   const [open, setOpen] = useState<Job | null>(null)
   const [toDelete, setToDelete] = useState<Job | null>(null)
-
-  useEffect(() => setPage(1), [q, sort, order, workspaceId])
 
   const columns = useMemo(
     () =>
@@ -142,7 +136,7 @@ export default function DataPage() {
         </Banner>
       )}
 
-      <div className="overflow-auto rounded-xl border border-line bg-surface">
+      <div className="overflow-auto rounded-xl border border-line bg-surface app-card">
         <table className="min-w-max border-separate border-spacing-0 text-left">
           <caption className="sr-only">Jobs, newest first by default</caption>
           <thead>
@@ -177,7 +171,7 @@ export default function DataPage() {
           </thead>
           <tbody>
             {(jobs.data?.items ?? []).map((job) => (
-              <tr key={job.id} onClick={() => setOpen(job)} className="group cursor-pointer">
+              <tr key={job.id} onClick={() => setOpen(job)} className="app-row group cursor-pointer">
                 {columns.map((field, index) => (
                   <Cell key={field.id} field={field} job={job} index={index} />
                 ))}
@@ -189,7 +183,7 @@ export default function DataPage() {
                     {canEdit && (
                       <Link
                         to={`/jobs/${job.id}/edit`}
-                        className="inline-flex h-9 items-center rounded-md border border-control bg-surface px-3 text-[13px] font-medium hover:bg-raised"
+                        className="inline-flex h-11 items-center rounded-md md:h-9 border border-control bg-surface px-3 text-[13px] font-medium hover:bg-raised"
                       >
                         Edit
                       </Link>
@@ -305,7 +299,7 @@ function PagerButton(props: { children: React.ReactNode; onClick: () => void; di
       onClick={props.onClick}
       disabled={props.disabled}
       aria-current={props.current ? 'page' : undefined}
-      className={`h-10 min-w-10 cursor-pointer rounded-lg px-3 text-sm font-medium tabular disabled:cursor-default disabled:text-faint disabled:opacity-60 ${
+      className={`h-11 min-w-11 cursor-pointer rounded-lg px-3 text-sm md:h-10 md:min-w-10 font-medium tabular disabled:cursor-default disabled:text-faint disabled:opacity-60 ${
         props.current ? 'bg-primary font-semibold text-white' : 'hover:bg-active'
       }`}
     >

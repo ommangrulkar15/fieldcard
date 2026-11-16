@@ -79,13 +79,13 @@ export default function FormSetup({ workspaceId }: { workspaceId: string }) {
       <ul className="overflow-hidden rounded-xl border border-line bg-surface">
         {ordered.map((field, index) => (
           <li key={field.id} className="flex items-center gap-2 border-b border-line px-3 py-2 last:border-b-0">
-            <div className="flex flex-col">
+            <div className="flex">
               <button
                 type="button"
                 aria-label={`Move ${field.label} up`}
                 disabled={index === 0 || reorder.isPending}
                 onClick={() => move(index, -1)}
-                className="grid h-6 w-11 cursor-pointer place-items-center rounded hover:bg-active disabled:cursor-default disabled:opacity-30"
+                className="grid h-11 w-11 cursor-pointer place-items-center rounded hover:bg-active disabled:cursor-default disabled:opacity-30"
               >
                 ▲
               </button>
@@ -94,7 +94,7 @@ export default function FormSetup({ workspaceId }: { workspaceId: string }) {
                 aria-label={`Move ${field.label} down`}
                 disabled={index === ordered.length - 1 || reorder.isPending}
                 onClick={() => move(index, 1)}
-                className="grid h-6 w-11 cursor-pointer place-items-center rounded hover:bg-active disabled:cursor-default disabled:opacity-30"
+                className="grid h-11 w-11 cursor-pointer place-items-center rounded hover:bg-active disabled:cursor-default disabled:opacity-30"
               >
                 ▼
               </button>

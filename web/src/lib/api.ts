@@ -1,3 +1,6 @@
+import { ApiError, DEMO } from './errors'
+import { demoApi } from '../demo/server'
+
 const BASE: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 let accessToken: string | null = null
@@ -5,16 +8,7 @@ let refreshing: Promise<boolean> | null = null
 
 export const SIGNED_OUT_EVENT = 'fieldcard:signed-out'
 
-export class ApiError extends Error {
-  status: number
-  errors: Record<string, string>
-
-  constructor(status: number, message: string, errors: Record<string, string> = {}) {
-    super(message)
-    this.status = status
-    this.errors = errors
-  }
-}
+export { ApiError }
 
 export function setAccessToken(token: string | null) {
   accessToken = token
@@ -55,6 +49,10 @@ async function attemptRefresh(): Promise<boolean> {
 /** Ask for a new access token using the httpOnly refresh cookie. One call at a time.
  *  A second browser tab may have just rotated the cookie, so a failure is retried once. */
 export function refreshSession(): Promise<boolean> {
+  if (DEMO) {
+    accessToken = accessToken ?? 'demo-admin'
+    return Promise.resolve(true)
+  }
   if (!refreshing) {
     refreshing = (async () => {
       try {
@@ -90,6 +88,7 @@ export async function api<T>(
   path: string,
   opts: { body?: unknown; query?: Query; blob?: boolean } = {},
 ): Promise<T> {
+  if (DEMO) return (await demoApi(method, path, opts)) as T
   let response: Response
   try {
     response = await send(method, path, opts.body, opts.query)

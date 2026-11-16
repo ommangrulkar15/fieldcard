@@ -70,7 +70,31 @@ ELECTRICAL = [
     FieldSpec("subdivision_officer", "Sub Division Officer Name", "text", CARD, on_card=True),
 ]
 
+# General site work: the same structure with trade-neutral wording, for crews in any trade.
+_RELABEL = {
+    "section": ("Site", None), "division": ("Zone", None), "dtc": ("Asset tag", None),
+    "feeder_no": ("Unit or line", "Unit or line"), "mo_no": ("Quote no.", "Quote no"),
+    "mo_amount": ("Quote amount", None), "mo_id": ("Quote ref", "Quote ref"),
+    "wo_no": ("Work order no.", "Work order no"), "wo_amount": ("Work order amount", None),
+    "agency_name": ("Contractor or team", None), "subdivision": ("Area", "Area"),
+    "fault_location": ("Work location", None), "agency_rep": ("Team lead", None),
+    "line_staff": ("Crew member", None), "section_officer": ("Site supervisor", None),
+    "subdivision_officer": ("Project manager", None),
+}
+_GROUPS = {LOCATION: "Location", MONEY: "Quotes and orders", CARD: "Printable card details"}
+
+
+def _general() -> list[FieldSpec]:
+    out = []
+    for spec in ELECTRICAL:
+        label, table = _RELABEL.get(spec.key, (spec.label, spec.table_label))
+        out.append(FieldSpec(**{**spec.__dict__, "label": label, "table_label": table or spec.table_label,
+                                "group": _GROUPS.get(spec.group, spec.group)}))
+    return out
+
+
 TEMPLATES: dict[str, list[FieldSpec]] = {
+    "general": CORE + _general(),
     "blank": CORE,
     "electrical": CORE + ELECTRICAL,
 }

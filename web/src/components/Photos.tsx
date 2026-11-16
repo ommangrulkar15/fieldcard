@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Banner, Button, Dialog } from './ui'
 import { ApiError, del, get, getBlob, upload } from '../lib/api'
@@ -150,12 +150,8 @@ export function PhotoGallery({ workspaceId, jobId, canEdit }: { workspaceId: str
 /** Photos chosen on the entry form before the job exists; uploaded right after it is saved. */
 export function PhotoQueue({ files, onChange }: { files: File[]; onChange: (files: File[]) => void }) {
   const input = useRef<HTMLInputElement>(null)
-  const [urls, setUrls] = useState<string[]>([])
-  useEffect(() => {
-    const made = files.map((file) => URL.createObjectURL(file))
-    setUrls(made)
-    return () => made.forEach((url) => URL.revokeObjectURL(url))
-  }, [files])
+  const urls = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files])
+  useEffect(() => () => urls.forEach((url) => URL.revokeObjectURL(url)), [urls])
   const room = MAX_PHOTOS - files.length
   return (
     <div>

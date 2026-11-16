@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import check_production_settings, settings
+from app.limits import BodySizeLimit
 from app.errors import AppError, ValidationFailed
 from app.ratelimit import TooManyRequests
 from app.routers import auth, health, jobs, members, photos, workspaces
@@ -10,6 +12,7 @@ from app.routers import auth, health, jobs, members, photos, workspaces
 check_production_settings()
 app = FastAPI(title="Fieldcard API", version="0.1.0")
 
+app.add_middleware(BodySizeLimit)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in settings.cors_origins.split(",") if o.strip()],
@@ -44,6 +47,16 @@ async def app_error_handler(_: Request, error: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=error.status_code, content={"detail": getattr(error, "what", str(error))}, headers=headers
     )
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_handler(_: Request, error: RequestValidationError) -> JSONResponse:
+    """Say which field is wrong and why, never echo the submitted input back (it can be megabytes)."""
+    errors: dict[str, str] = {}
+    for item in error.errors()[:20]:
+        where = ".".join(str(part) for part in item["loc"] if part != "body") or "body"
+        errors.setdefault(where, str(item["msg"]).removeprefix("Value error, "))
+    return JSONResponse(status_code=422, content={"detail": "Validation failed", "errors": errors})
 
 
 app.include_router(health.router)

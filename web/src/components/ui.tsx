@@ -1,10 +1,11 @@
+import { DEMO } from '../lib/errors'
 import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { CloseIcon } from './icons'
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-primary text-white border-primary font-semibold hover:bg-black',
+  primary: 'app-btn-primary text-white border-primary font-semibold',
   secondary: 'bg-surface text-ink border-control hover:bg-raised',
   ghost: 'bg-transparent text-ink border-transparent hover:bg-active',
   danger: 'bg-surface text-bad border-control hover:bg-bad-bg',
@@ -16,11 +17,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = 'secondary', small, className = '', type = 'button', ...rest }: ButtonProps) {
-  const size = small ? 'h-9 px-3 text-[13px] rounded-md' : 'h-11 px-4 rounded-lg'
+  const size = small ? 'h-11 px-3 text-[13px] rounded-md md:h-9' : 'h-11 px-4 rounded-lg'
   return (
     <button
       type={type}
-      className={`inline-flex items-center justify-center gap-2 border font-medium whitespace-nowrap cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${size} ${VARIANTS[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 border font-medium whitespace-nowrap cursor-pointer transition-[transform,background-color,box-shadow] duration-150 active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 ${size} ${VARIANTS[variant]} ${className}`}
       {...rest}
     />
   )
@@ -117,5 +118,7 @@ export function Spinner({ label = 'Loading' }: { label?: string }) {
 }
 
 export function PageTitle({ children }: { children: ReactNode }) {
-  return <h1 className="mb-4 text-2xl font-semibold tracking-tight">{children}</h1>
+  // The demo embeds this screen under the landing page's own h1, so it drops a level there.
+  const Tag = DEMO ? 'h2' : 'h1'
+  return <Tag className="mb-4 text-2xl font-semibold tracking-tight">{children}</Tag>
 }

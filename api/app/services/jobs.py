@@ -169,10 +169,9 @@ def create_job(db: Session, workspace_id: uuid.UUID, values: dict) -> dict:
     return serialize(job, fields)
 
 
-def get_job_row(db: Session, workspace_id: uuid.UUID, job_id: uuid.UUID) -> Job:
-    job = db.scalar(
-        select(Job).where(Job.id == job_id, Job.workspace_id == workspace_id, Job.deleted_at.is_(None))
-    )
+def get_job_row(db: Session, workspace_id: uuid.UUID, job_id: uuid.UUID, *, lock: bool = False) -> Job:
+    query = select(Job).where(Job.id == job_id, Job.workspace_id == workspace_id, Job.deleted_at.is_(None))
+    job = db.scalar(query.with_for_update() if lock else query)
     if job is None:
         raise NotFound("Job not found")
     return job
@@ -184,7 +183,8 @@ def get_job(db: Session, workspace_id: uuid.UUID, job_id: uuid.UUID) -> dict:
 
 
 def update_job(db: Session, workspace_id: uuid.UUID, job_id: uuid.UUID, values: dict) -> dict:
-    job = get_job_row(db, workspace_id, job_id)
+    # Locked: edits merge into the JSONB column, so two editors must take turns or one erases the other.
+    job = get_job_row(db, workspace_id, job_id, lock=True)
     fields = _fields_by_key(db, workspace_id)
     core, data, errors = _split_values(fields, values)
 

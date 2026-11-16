@@ -301,3 +301,30 @@ def test_field_patch_rejects_wrong_value_types(client, electrical):
                  {"group_id": "not-a-uuid"}, {"table_label": ["x"]}):
         assert client.patch(url, json=body).status_code == 422, body
     assert client.patch(url, json={"required": True, "table_label": "DTC No"}).status_code == 200
+
+
+def test_concurrent_edits_to_different_fields_both_survive(client, electrical):
+    """Review finding: read-merge-write of the JSONB column let one editor silently erase another's change."""
+    from threading import Barrier
+
+    first = post_job(client, electrical, date="2026-10-30", description="x", status="open").json()["id"]
+    fields = ["section", "division", "dtc", "feeder_no", "agency_name", "remarks"]
+    gate = Barrier(len(fields))
+
+    def edit(key):
+        gate.wait()
+        return client.patch(f"/workspaces/{electrical}/jobs/{first}", json={"values": {key: "dtc-1" if key != "division" else "North"}}).status_code
+
+    with ThreadPoolExecutor(len(fields)) as pool:
+        codes = list(pool.map(edit, fields))
+    assert codes == [200] * len(fields), codes
+    values = client.get(f"/workspaces/{electrical}/jobs/{first}").json()["values"]
+    missing = [k for k in fields if k not in values]
+    assert not missing, f"edits lost: {missing}"
+
+
+def test_a_job_body_with_thousands_of_keys_is_refused_cheaply(client, electrical):
+    """Review finding: 50,000 junk keys produced a 1.2 MB validation reply."""
+    body = {"values": {f"k{i}": "x" for i in range(5000)}}
+    r = client.post(f"/workspaces/{electrical}/jobs", json=body)
+    assert r.status_code == 422 and len(r.content) < 5000

@@ -1,7 +1,10 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+MAX_VALUES_PER_JOB = 200
 
 
 class WorkspaceCreate(BaseModel):
@@ -66,6 +69,13 @@ class JobIn(BaseModel):
     """`values` maps field key -> value. Core and custom fields share one shape."""
 
     values: dict[str, object] = Field(default_factory=dict)
+
+    @field_validator("values")
+    @classmethod
+    def _not_absurdly_wide(cls, value: dict[str, object]) -> dict[str, object]:
+        if len(value) > MAX_VALUES_PER_JOB:
+            raise ValueError(f"A job has at most {MAX_VALUES_PER_JOB} fields")
+        return value
 
 
 class JobOut(BaseModel):

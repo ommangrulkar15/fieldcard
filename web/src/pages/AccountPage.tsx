@@ -33,7 +33,7 @@ export default function AccountPage() {
     <div className="mx-auto max-w-[520px]">
       <PageTitle>Account</PageTitle>
 
-      <section className="mb-4 rounded-xl border border-line bg-surface p-5" aria-label="Profile">
+      <section className="mb-4 rounded-xl border border-line bg-surface app-card p-5" aria-label="Profile">
         <p className="font-semibold">{me?.user.name}</p>
         <p className="text-muted">{me?.user.email}</p>
         {workspace && (
@@ -43,7 +43,7 @@ export default function AccountPage() {
         )}
       </section>
 
-      <form onSubmit={submit} className="mb-4 rounded-xl border border-line bg-surface p-5">
+      <form onSubmit={submit} className="mb-4 rounded-xl border border-line bg-surface app-card p-5">
         <h2 className="mb-3 text-base font-semibold">Change password</h2>
         {done && (
           <div className="mb-3">

@@ -212,3 +212,55 @@ def test_refresh_cookie_is_httponly_scoped_and_follows_the_configured_path(clien
     monkeypatch.setattr(settings, "cookie_path", "/api/auth")
     second = client.post("/auth/login", json={"email": "p@example.com", "password": PASSWORD})
     assert "Path=/api/auth" in second.headers["set-cookie"]
+
+
+def test_concurrent_refresh_with_one_token_rotates_exactly_once(make_client, client):
+    """Review finding: two requests holding the same refresh token must not both mint a new one."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    signup(client, email="race@example.com")
+    token = login(client, "race@example.com").cookies.get("fc_refresh")
+
+    from threading import Barrier
+
+    count = 16
+    gate = Barrier(count)
+    clients = []
+    for _ in range(count):
+        web = make_client()
+        web.cookies.set("fc_refresh", token, path="/auth")
+        clients.append(web)
+
+    def refresh(web):
+        gate.wait()  # release every request at once
+        return web.post("/auth/refresh", headers=CSRF).status_code
+
+    with ThreadPoolExecutor(count) as pool:
+        codes = list(pool.map(refresh, clients))
+    assert codes.count(200) == 1, codes
+
+
+def test_oversized_json_body_is_refused_before_it_is_parsed(client):
+    """Review finding: a 10 MB JSON body was accepted and parsed on every endpoint."""
+    big = '{"email":"a@example.com","password":"' + "p" * (2 * 1024 * 1024) + '"}'
+    r = client.post("/auth/login", content=big, headers={"Content-Type": "application/json"})
+    assert r.status_code == 413
+
+
+def test_oversized_body_without_a_length_header_is_refused(client):
+    def chunks():
+        for _ in range(40):
+            yield b"x" * 65536  # 2.5 MB, sent chunked
+
+    r = client.post("/auth/login", content=chunks(), headers={"Content-Type": "application/json"})
+    assert r.status_code == 413
+
+
+def test_rate_limiter_forgets_keys_nobody_comes_back_for():
+    """Review finding: idle keys were only dropped when revisited, so rotating emails grew memory without bound."""
+    from app.ratelimit import Limiter
+
+    limiter = Limiter(5, 0)  # zero-second window: every hit is instantly stale
+    for i in range(3000):
+        limiter.record(f"1.2.3.4|user{i}@example.com")
+    assert len(limiter.hits) < 1100

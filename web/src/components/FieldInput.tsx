@@ -9,7 +9,7 @@ interface Props {
 }
 
 const CONTROL =
-  'w-full rounded-lg border bg-surface px-3 text-base md:text-sm focus-visible:outline-2 focus-visible:outline-offset-1'
+  'app-field w-full rounded-lg border bg-surface px-3 text-base md:text-sm focus-visible:outline-2 focus-visible:outline-offset-1'
 
 /** One input per field type. 16px text on phones stops iOS zooming into the field. */
 export default function FieldInput({ field, value, error, placeholder, onChange }: Props) {

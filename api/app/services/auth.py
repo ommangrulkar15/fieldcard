@@ -107,7 +107,8 @@ def refresh_session(db: Session, token: str | None) -> tuple[User, str, str]:
     """Rotate a refresh token. Presenting a used token means it leaked: revoke everything."""
     if not token:
         raise Unauthorized()
-    row = db.scalar(select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(token)))
+    # Row lock: two requests presenting one token queue up, so only the first can rotate it.
+    row = db.scalar(select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(token)).with_for_update())
     if row is None:
         raise Unauthorized()
     if row.revoked_at is not None:

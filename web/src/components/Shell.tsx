@@ -1,5 +1,7 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { syncBrand } from '../lib/brand'
 import { LogoutIcon, Logo, PencilIcon, ShieldIcon, TableIcon, UserIcon } from './icons'
 import type { ReactNode } from 'react'
 
@@ -11,7 +13,11 @@ interface NavItem {
 }
 
 export default function Shell() {
+  const location = useLocation()
   const { me, workspace, setWorkspaceId, logout, can } = useAuth()
+  useEffect(() => {
+    if (workspace?.id) syncBrand(workspace.id)
+  }, [workspace?.id])
   const items: NavItem[] = [
     { to: '/entry', label: 'Job Entry', icon: <PencilIcon />, show: can('job:create') },
     { to: '/account', label: 'Account', icon: <UserIcon />, show: true },
@@ -23,8 +29,8 @@ export default function Shell() {
     `flex items-center gap-2 rounded-lg px-3 h-10 font-medium ${isActive ? 'bg-active text-ink' : 'text-muted hover:bg-raised'}`
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-surface px-4 md:px-6">
+    <div id="fc-app-root" className="app-ground flex min-h-dvh flex-col">
+      <header className="app-glass sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-line px-4 md:px-6">
         <div className="flex items-center gap-2 pr-2 text-base font-semibold">
           <Logo />
           Fieldcard
@@ -47,7 +53,7 @@ export default function Shell() {
                 id="workspace"
                 value={workspace?.id ?? ''}
                 onChange={(event) => setWorkspaceId(event.target.value)}
-                className="h-10 max-w-[190px] truncate rounded-lg border border-control bg-surface px-2 text-sm"
+                className="h-11 max-w-[190px] truncate rounded-lg border border-control bg-surface px-2 text-sm"
               >
                 {me.workspaces.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -69,12 +75,14 @@ export default function Shell() {
       </header>
 
       <main className="flex-1 px-4 pb-24 pt-5 md:px-6 md:pb-10">
-        <Outlet />
+        <div key={location.pathname} className="app-enter">
+          <Outlet />
+        </div>
       </main>
 
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="app-glass fixed inset-x-0 bottom-0 z-20 flex border-t border-line pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {visible.map((item) => (
           <NavLink

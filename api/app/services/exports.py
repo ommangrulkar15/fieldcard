@@ -81,7 +81,7 @@ def to_csv(jobs: list[dict], columns: list[FormField]) -> bytes:
         for column in columns:
             value = job["values"].get(column.key)
             number = _number(value) if column.type == "number" and value not in (None, "") else None
-            row.append(str(number.normalize() if number == number.to_integral() else number) if number is not None
+            row.append(format(number.normalize() if number == number.to_integral() else number, "f") if number is not None
                        else neutralise(display(column, value)))
         writer.writerow(row)
     return b"\xef\xbb\xbf" + out.getvalue().encode("utf-8")  # BOM so Excel reads UTF-8 correctly

@@ -22,10 +22,14 @@ class TooManyRequests(AppError):
         self.retry_after = retry_after
 
 
+SWEEP_EVERY = 500
+
+
 class Limiter:
     def __init__(self, limit: int, window_seconds: int):
         self.limit, self.window = limit, window_seconds
         self.hits: dict[str, deque[float]] = defaultdict(deque)
+        self._records = 0
 
     def _recent(self, key: str, now: float) -> deque[float]:
         hits = self.hits[key]
@@ -46,6 +50,15 @@ class Limiter:
         now = time.monotonic()
         self._recent(key, now)
         self.hits[key].append(now)
+        self._records += 1
+        if self._records % SWEEP_EVERY == 0:
+            self._sweep(now)
+
+    def _sweep(self, now: float) -> None:
+        """Drop keys whose every hit has expired. Without this, one-off keys (an attacker rotating
+        emails) are never revisited and would pile up forever."""
+        for key in [k for k, hits in self.hits.items() if not hits or now - hits[-1] > self.window]:
+            del self.hits[key]
 
     def clear(self) -> None:
         self.hits.clear()

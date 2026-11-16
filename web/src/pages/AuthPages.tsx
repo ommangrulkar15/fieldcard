@@ -13,7 +13,7 @@ function Frame({ title, subtitle, children }: { title: string; subtitle: string;
           <Logo size={32} />
           Fieldcard
         </div>
-        <div className="rounded-2xl border border-line bg-surface p-6">
+        <div className="rounded-2xl border border-line bg-surface app-card p-6">
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           <p className="mt-1 mb-5 text-muted">{subtitle}</p>
           {children}
@@ -152,7 +152,7 @@ export function LoginPage() {
       {config.signup_enabled && (
         <p className="mt-4 text-sm text-muted">
           New here?{' '}
-          <Link to="/signup" className="font-medium text-ink underline">
+          <Link to="/signup" className="inline-block py-3 font-medium text-ink underline">
             Create a workspace
           </Link>
         </p>
@@ -162,13 +162,14 @@ export function LoginPage() {
 }
 
 const TEMPLATES = [
+  { value: 'general', label: 'General site work (any trade)' },
   { value: 'electrical', label: 'Electrical contractor' },
   { value: 'blank', label: 'Start blank' },
 ]
 
 export function SignupPage() {
   const { status, signup } = useAuth()
-  const [form, setForm] = useState({ name: '', email: '', password: '', workspace_name: '', template: 'electrical' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', workspace_name: '', template: 'general' })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -238,7 +239,7 @@ export function SignupPage() {
       </form>
       <p className="mt-4 text-sm text-muted">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-ink underline">
+        <Link to="/login" className="inline-block py-3 font-medium text-ink underline">
           Sign in
         </Link>
       </p>

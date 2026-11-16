@@ -4,6 +4,7 @@ import { PageTitle } from '../components/ui'
 import FormSetup from './admin/FormSetup'
 import ActivityTab from './admin/ActivityTab'
 import UsersTab from './admin/UsersTab'
+import BrandTab from './admin/BrandTab'
 
 export default function AdminPage() {
   const { workspace, can } = useAuth()
@@ -11,6 +12,7 @@ export default function AdminPage() {
     { id: 'form', label: 'Form setup', show: can('fields:manage') },
     { id: 'users', label: 'Users', show: can('users:manage') },
     { id: 'activity', label: 'Activity', show: can('users:manage') },
+    { id: 'brand', label: 'Appearance', show: can('fields:manage') },
   ].filter((tab) => tab.show)
   const [active, setActive] = useState(tabs[0]?.id)
   if (!workspace) return null
@@ -39,6 +41,7 @@ export default function AdminPage() {
         {active === 'form' && <FormSetup workspaceId={workspace.id} />}
         {active === 'users' && <UsersTab workspaceId={workspace.id} />}
         {active === 'activity' && <ActivityTab workspaceId={workspace.id} />}
+        {active === 'brand' && <BrandTab workspaceId={workspace.id} />}
       </div>
     </div>
   )
