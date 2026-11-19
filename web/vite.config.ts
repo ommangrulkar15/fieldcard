@@ -6,4 +6,12 @@ export default defineConfig({
   // GitHub Pages serves the site from /<repo>/, so the demo build sets VITE_BASE=/fieldcard/.
   base: process.env.VITE_BASE ?? '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        demo: 'demo.html',
+      },
+    },
+  },
 })

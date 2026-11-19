@@ -463,8 +463,7 @@
 @keyframes fc-drift3 { to { transform: translate(5rem, -6rem) scale(1.22); } }
 
 /* Two-tone headline: second line in a lavender sheen. */
-.fc-h-grad { background: linear-gradient(100deg, #ffffff 0%, #e3d9ff 44%, #c9b8f6 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.fc-h-grad { color: var(--fc-light); }
 
 /* Floating accent cards around the hero product. */
 .fc-accent { background: rgb(255 255 255 / 0.86); -webkit-backdrop-filter: blur(12px) saturate(140%);
@@ -513,4 +512,869 @@
 @media (prefers-reduced-motion: reduce) {
   .fc-btn { transition: none; }
   .fc-btn:hover, .fc-btn:active { transform: none; }
+}
+
+/* ============================================================
+   Case study page
+   ============================================================ */
+.cs-kicker {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+}
+.cs-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+.cs-browser {
+  border-radius: 16px; overflow: hidden; background: #fff;
+  box-shadow: 0 30px 70px -30px rgb(26 20 48 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.4);
+  border: 1px solid rgb(255 255 255 / 0.12);
+}
+.cs-browser .bar { height: 36px; background: var(--fc-deep); display: flex; align-items: center; gap: 7px; padding: 0 15px; }
+.cs-browser .bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--fc-light); opacity: 0.65; }
+.cs-browser img { display: block; width: 100%; }
+.cs-phone {
+  border-radius: 36px; padding: 9px; background: var(--fc-deep);
+  box-shadow: 0 30px 70px -26px rgb(26 20 48 / 0.72), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  border: 1px solid rgb(255 255 255 / 0.1);
+}
+.cs-phone img { display: block; width: 100%; border-radius: 27px; }
+.cs-swatch { height: 76px; border-radius: 12px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), inset 0 0 0 1px rgb(43 34 80 / 0.06); }
+.cs-reveal { opacity: 1; transform: none; }
+.cs-js .cs-reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s var(--fc-ease), transform 0.6s var(--fc-ease); }
+.cs-js .cs-reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .cs-js .cs-reveal { opacity: 1; transform: none; transition: none; } }
+
+/* ---- How it works: device frames around real screenshots ---- */
+.fc-dev-phone {
+  position: relative;
+  align-self: end;
+  width: min(100%, 15.5rem);
+  aspect-ratio: 560 / 1211;
+  padding: 0.55rem;
+  border-radius: 2.25rem;
+  background: #141029;
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.07), inset 0 0 0 5px #241c45, 0 28px 48px -12px rgb(10 5 26 / 0.6);
+}
+.fc-dev-phone img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 1.75rem;
+  background: #fff;
+}
+.fc-dev-island {
+  position: absolute;
+  top: 0.95rem;
+  left: 50%;
+  width: 27%;
+  height: 1.15rem;
+  translate: -50% 0;
+  border-radius: 999px;
+  background: #07050e;
+}
+.fc-dev-laptop {
+  align-self: end;
+  padding: 0 6%;
+  filter: drop-shadow(0 28px 36px rgb(10 5 26 / 0.55));
+}
+.fc-dev-lid {
+  position: relative;
+  padding: 0.75rem 0.75rem 0.9rem;
+  border-radius: 1rem 1rem 0.375rem 0.375rem;
+  background: #141029;
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.06);
+}
+.fc-dev-lid::before {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  left: 50%;
+  width: 0.3rem;
+  height: 0.3rem;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: #3a3264;
+}
+.fc-dev-lid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
+.fc-dev-base {
+  position: relative;
+  height: 0.9rem;
+  margin: 0 -7%;
+  border-radius: 2px 2px 1rem 1rem;
+  background: linear-gradient(#e2dcf2, #a99fca);
+}
+.fc-dev-base::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 15%;
+  height: 0.4rem;
+  translate: -50% 0;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background: #958bb8;
+}
+.fc-dev-link {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: center;
+  color: var(--fc-light);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Demo stage: the live app inside a phone or a laptop frame */
+.fc-demo-device {
+  position: relative;
+  background: var(--fc-ink);
+  box-shadow: 0 30px 60px -28px rgb(43 34 80 / 0.55);
+  max-width: 100%;
+  transition:
+    width 0.55s var(--fc-ease),
+    border-radius 0.55s var(--fc-ease),
+    padding 0.55s var(--fc-ease);
+}
+.fc-demo-screen {
+  overflow: hidden;
+  background: var(--fc-ground);
+  transition:
+    height 0.55s var(--fc-ease),
+    border-radius 0.55s var(--fc-ease);
+}
+.fc-demo-screen iframe {
+  display: block;
+  border: 0;
+  transform-origin: 0 0;
+  background: var(--fc-ground);
+}
+.fc-demo-island {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  z-index: 1;
+  width: 88px;
+  height: 22px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--fc-ink);
+}
+.fc-demo-base {
+  height: 14px;
+  margin-top: -1px;
+  border-radius: 0 0 18px 18px;
+  background: linear-gradient(var(--fc-lavender, #b5a8db), var(--fc-light));
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-demo-device,
+  .fc-demo-screen {
+    transition: none;
+  }
+}
+
+/* Demo band: a deeper lavender so the page is not one long pale stretch */
+.fc-demo-band {
+  background: linear-gradient(#e4ddf3, #cdc2e9);
+}
+
+/* Scroll story: devices stay pinned, the step you are reading decides what they show */
+.fc-story-stage-wrap {
+  position: sticky;
+  top: 4rem;
+  z-index: 2;
+  align-self: start;
+  padding-block: 0.5rem;
+  background: var(--fc-deep);
+}
+@media (min-width: 768px) {
+  .fc-story-stage-wrap {
+    top: 6rem;
+    background: none;
+  }
+}
+.fc-story-stage {
+  position: relative;
+  height: clamp(240px, 36vh, 360px);
+}
+@media (min-width: 768px) {
+  .fc-story-stage {
+    height: clamp(400px, 58vh, 560px);
+  }
+}
+.fc-story-phone,
+.fc-story-laptop,
+.fc-story-pill,
+.fc-story-export {
+  position: absolute;
+  transition:
+    transform 0.7s var(--fc-ease),
+    opacity 0.5s var(--fc-ease),
+    left 0.7s var(--fc-ease);
+}
+.fc-story-phone {
+  bottom: 0;
+  left: 50%;
+  width: min(34%, 15.5rem);
+  transform: translateX(-50%);
+  transform-origin: bottom center;
+  z-index: 2;
+}
+.fc-story-phone .fc-dev-phone {
+  width: 100%;
+}
+.fc-story-laptop {
+  right: 0;
+  bottom: 0;
+  width: 84%;
+  opacity: 0.2;
+  transform: translateX(8%) scale(0.88);
+  transform-origin: bottom right;
+}
+.fc-story-pill,
+.fc-story-export {
+  opacity: 0;
+  border-radius: 999px;
+  background: var(--fc-light);
+  color: var(--fc-ink);
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+}
+.fc-story-pill {
+  left: 38%;
+  top: 40%;
+  z-index: 3;
+}
+.fc-story-export {
+  left: 50%;
+  top: 4%;
+  transform: translate(-50%, 12px);
+  z-index: 3;
+}
+/* step 2: the office table comes forward and the phone steps aside */
+.fc-story-stage[data-step='1'] .fc-story-phone {
+  left: 2%;
+  transform: translateX(0) scale(0.55);
+  opacity: 0.9;
+}
+.fc-story-stage[data-step='1'] .fc-story-laptop {
+  opacity: 1;
+  transform: none;
+}
+.fc-story-stage[data-step='1'] .fc-story-pill {
+  opacity: 1;
+}
+/* step 3: the table leaves as a spreadsheet */
+.fc-story-stage[data-step='2'] .fc-story-phone {
+  left: 2%;
+  transform: translateX(0) scale(0.55);
+  opacity: 1;
+}
+.fc-story-stage[data-step='2'] .fc-story-laptop {
+  opacity: 1;
+  transform: none;
+}
+.fc-story-stage[data-step='2'] .fc-story-export {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.fc-story-step {
+  opacity: 0.45;
+  transition: opacity 0.4s var(--fc-ease);
+}
+.fc-story-step[data-on='true'] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-story-phone,
+  .fc-story-laptop,
+  .fc-story-pill,
+  .fc-story-export,
+  .fc-story-step {
+    transition: none;
+  }
+}
+
+/* Buttons: one hover for every pill. A fill rises from the bottom. */
+.fc-btn-ghost::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: #fff;
+  transform: translateY(101%);
+  transition: transform 0.35s var(--fc-ease);
+}
+.fc-btn-ghost:hover {
+  background: rgb(255 255 255 / 0.06);
+  color: var(--fc-deep);
+}
+.fc-btn-ghost:hover::before {
+  transform: none;
+}
+
+/* Hero: rolling trade word */
+.fc-roll {
+  display: inline-grid;
+  vertical-align: bottom;
+  overflow: hidden;
+  color: var(--fc-light);
+}
+.fc-roll {
+  transition: width 0.5s var(--fc-ease);
+}
+.fc-roll > span {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(70%);
+  transition:
+    transform 0.5s var(--fc-ease),
+    opacity 0.35s var(--fc-ease);
+}
+.fc-roll > span[data-on='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hero: one product window, cut by the section edge, with three pills */
+.fc-hero-window-wrap {
+  position: relative;
+  max-width: 60rem;
+  margin: 3.5rem auto 0;
+  padding-bottom: 5rem;
+  text-align: left;
+}
+.fc-hero-window {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #fff;
+  color: var(--fc-ink);
+  box-shadow:
+    0 0 0 6px rgb(255 255 255 / 0.18),
+    0 40px 80px -30px rgb(20 12 50 / 0.6);
+}
+.fc-hero-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ebe7f5;
+  font-size: 0.95rem;
+}
+.fc-hero-search {
+  flex: 1;
+  max-width: 18rem;
+  margin-left: auto;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #ddd6ee;
+  border-radius: 0.5rem;
+  color: #5b5478;
+  font-size: 0.85rem;
+}
+.fc-hero-export {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--fc-deep);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.fc-hero-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.fc-hero-table th {
+  padding: 0.6rem 1rem;
+  background: #f6f4fb;
+  color: #5b5478;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fc-hero-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0edf7;
+  white-space: nowrap;
+}
+.fc-hero-table td:nth-child(3) {
+  white-space: normal;
+}
+.fc-hero-table tr[data-fresh] {
+  animation: fc-row-in 0.6s var(--fc-ease) both;
+  background: #efeafb;
+}
+@keyframes fc-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+.fc-st {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition:
+    background 0.4s var(--fc-ease),
+    color 0.4s var(--fc-ease);
+}
+.fc-st.open {
+  background: #fdf0c4;
+  color: #6b4e00;
+}
+.fc-st.closed {
+  background: #d9f2e3;
+  color: #0b5d3b;
+}
+.fc-hero-pill {
+  position: absolute;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--fc-deep);
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 16px 32px -16px rgb(20 12 50 / 0.55);
+  animation: fc-bob 6s ease-in-out infinite;
+}
+@media (min-width: 1200px) {
+  .fc-hero-pill {
+    display: inline-flex;
+  }
+}
+.fc-hero-pill.p1 {
+  left: -12.5rem;
+  top: 34%;
+}
+.fc-hero-pill.p2 {
+  right: -11rem;
+  top: 12%;
+  animation-delay: -2.2s;
+}
+.fc-hero-pill.p3 {
+  right: -10rem;
+  top: 58%;
+  animation-delay: -4s;
+}
+.fc-hero-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #e0a400;
+  box-shadow: 0 0 0 4px rgb(224 164 0 / 0.2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-roll > span,
+  .fc-hero-table tr[data-fresh],
+  .fc-hero-pill {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---- Sections: one dark run on top, then sheets that slide over it ---- */
+.fc-dark-run {
+  background: var(--fc-deep);
+}
+.fc-story {
+  overflow-x: clip;
+}
+.fc-sheet {
+  position: relative;
+  z-index: 1;
+  margin-top: -2.5rem;
+  border-radius: 2.5rem 2.5rem 0 0;
+  box-shadow: 0 -24px 48px -24px rgb(20 12 50 / 0.45);
+}
+@media (min-width: 768px) {
+  .fc-sheet {
+    margin-top: -3.5rem;
+    border-radius: 3.5rem 3.5rem 0 0;
+  }
+}
+.fc-sheet-light {
+  background: var(--fc-ground);
+}
+.fc-demo-band {
+  background: none;
+}
+.fc-foot {
+  background: var(--fc-deep);
+}
+
+.fc-hero-pill {
+  animation: none;
+}
+.fc-hero-ico {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--fc-deep);
+  color: #fff;
+}
+
+/* How it works: a rail that fills to the step you are reading */
+.fc-rail {
+  position: relative;
+  padding-left: 1.75rem;
+  border-left: 2px solid rgb(255 255 255 / 0.16);
+}
+.fc-story-step {
+  position: relative;
+  opacity: 1;
+}
+.fc-story-step::before {
+  content: '';
+  position: absolute;
+  left: calc(-1.75rem - 7px);
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--fc-deep);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.4);
+  transition:
+    background 0.3s var(--fc-ease),
+    box-shadow 0.3s var(--fc-ease);
+}
+.fc-story-step[data-on='true']::before {
+  background: var(--fc-light);
+  box-shadow: 0 0 0 6px rgb(213 204 238 / 0.2);
+}
+.fc-story-step h3 {
+  opacity: 0.45;
+  transition: opacity 0.4s var(--fc-ease);
+}
+.fc-story-step[data-on='true'] h3 {
+  opacity: 1;
+}
+.fc-story-stage[data-step='0'] .fc-story-laptop {
+  opacity: 0;
+}
+.fc-story-export-m {
+  top: -0.75rem;
+  left: 50%;
+  opacity: 1;
+  transform: translateX(-50%);
+}
+@media (max-width: 767px) {
+  .fc-story-step h3 {
+    opacity: 1;
+  }
+  .fc-story-step::before {
+    top: 2.6rem;
+  }
+}
+
+/* Questions: calm rows with thin rules, first answer open */
+.fc-faq-list {
+  border-top: 1px solid #d9d1ee;
+}
+.fc-faq {
+  border-bottom: 1px solid #d9d1ee;
+}
+.fc-faq .fc-plus {
+  background: var(--fc-light);
+  color: var(--fc-deep);
+}
+.fc-faq summary:hover .fc-plus {
+  background: var(--fc-deep);
+  color: #fff;
+}
+.fc-customise summary::-webkit-details-marker {
+  display: none;
+}
+.fc-customise[open] .fc-plus {
+  transform: rotate(45deg);
+}
+
+/* Dark button for light sections, same rising-fill hover as the others */
+.fc-btn-deep {
+  background: var(--fc-deep);
+  color: #fff;
+}
+.fc-btn-deep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--fc-ink);
+  transform: translateY(101%);
+  transition: transform 0.35s var(--fc-ease);
+}
+.fc-btn-deep:hover::before {
+  transform: none;
+}
+
+.fc-hero-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  color: #5b5478;
+  font-size: 0.85rem;
+}
+.fc-hero-page {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.4rem;
+  font-weight: 700;
+}
+.fc-hero-page.on {
+  background: var(--fc-deep);
+  color: #fff;
+}
+
+/* Hero table: starts tilted back, straightens as you scroll (--p goes 0 to 1) */
+.fc-hero-window-wrap {
+  --p: 1;
+  perspective: 1400px;
+}
+.fc-hero-window {
+  transform-origin: 50% 100%;
+  transform: rotateX(calc((1 - var(--p)) * 24deg)) scale(calc(0.9 + var(--p) * 0.1));
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-hero-window {
+    transform: none;
+  }
+}
+
+/* Hero: a soft light that follows the mouse (desktop only) */
+.fc-hero-light {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .fc-hero-light {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(30rem circle at var(--mx, -999px) var(--my, -999px), rgb(213 204 238 / 0.16), transparent 70%);
+  }
+}
+
+/* How it works on phones: a readable crop of the table, and a file card instead of a repeat */
+.fc-crop {
+  height: 13rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 20px 40px -24px rgb(10 6 30 / 0.7);
+}
+.fc-crop img {
+  width: 230%;
+  max-width: none;
+  margin: -10% 0 0 -2%;
+}
+.fc-file {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 20px 40px -24px rgb(10 6 30 / 0.7);
+}
+.fc-file-ico {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3.5rem;
+  border-radius: 0.5rem;
+  background: #0b5d3b;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* Press feedback: every pill button dips slightly when pressed */
+.fc-btn:active {
+  transform: scale(0.96);
+}
+
+/* Demo: a quick tick when a job is saved, before the phone becomes the laptop */
+.fc-demo-tick {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgb(43 34 80 / 0.35);
+  animation: fc-tick-fade 0.25s ease-out both;
+}
+.fc-demo-tick > span {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  background: #fff;
+  color: #0b5d3b;
+  box-shadow: 0 20px 40px -16px rgb(10 6 30 / 0.6);
+  animation: fc-tick-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.fc-demo-tick path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: fc-tick-draw 0.35s 0.2s ease-out forwards;
+}
+@keyframes fc-tick-fade {
+  from { opacity: 0; }
+}
+@keyframes fc-tick-pop {
+  from { opacity: 0; transform: scale(0.6); }
+}
+@keyframes fc-tick-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-demo-tick,
+  .fc-demo-tick > span {
+    animation: none;
+  }
+  .fc-demo-tick path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .fc-btn:active {
+    transform: none;
+  }
+}
+
+/* What else it does: tabs */
+.fc-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+}
+.fc-tab {
+  flex: none;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.3);
+  cursor: pointer;
+  transition:
+    background 0.2s var(--fc-ease),
+    color 0.2s var(--fc-ease),
+    transform 0.15s var(--fc-ease);
+}
+.fc-tab:hover {
+  box-shadow: inset 0 0 0 2px #fff;
+}
+.fc-tab:active {
+  transform: scale(0.96);
+}
+.fc-tab[aria-selected='true'] {
+  background: var(--fc-light);
+  color: var(--fc-deep);
+  box-shadow: none;
+}
+.fc-tabpanel {
+  animation: fc-panel-in 0.35s var(--fc-ease) both;
+}
+@keyframes fc-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.fc-fv {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 24px 48px -24px rgb(10 6 30 / 0.7);
+}
+.fc-fv-paper {
+  transform: rotate(-1.5deg);
+}
+.fc-fv-photo {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 0.6rem;
+}
+.fc-fv-add {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fc-deep);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-tabpanel {
+    animation: none;
+  }
+}
+
+/* Scroll story chips: up to three per step, popping in one after another */
+.fc-schip {
+  position: absolute;
+  z-index: 4;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--fc-light);
+  color: var(--fc-ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  box-shadow: 0 14px 28px -14px rgb(10 6 30 / 0.7);
+  animation: fc-chip-in 0.4s var(--fc-ease) both;
+}
+.fc-schip-m {
+  position: static;
+  font-size: 0.875rem;
+  animation: none;
+}
+@keyframes fc-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-schip {
+    animation: none;
+  }
+}
+
+/* The stage is sized by its width so devices and chips always line up */
+@media (min-width: 768px) {
+  .fc-story-stage-wrap {
+    container-type: inline-size;
+  }
+  .fc-story-stage {
+    height: 80cqw;
+  }
 }
