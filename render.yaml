@@ -21,11 +21,13 @@ services:
         value: "true"
       - key: COOKIE_PATH
         value: /api/auth
-      # Browser -> static site (/api rewrite) -> Render -> API: two proxies, so the visitor's address is
-      # the second-to-last X-Forwarded-For entry. With 1, every visitor shares Vercel's address and
-      # the sign-in rate limit would throttle them all together. Re-check after any hosting change.
+      # Measured on the live site (Nov 2026): X-Forwarded-For arrives with 6 entries, the visitor
+      # first, then Cloudflare and Render hops in front of the static site and of the API. Counting
+      # 6 from the end picks the visitor even if they send a fake header of their own. Any smaller
+      # number picks a shared proxy, so every visitor would share one sign-in rate limit. The API
+      # logs the chain once per start ("proxy chain: ..."): re-check after any hosting change.
       - key: TRUST_PROXY_HOPS
-        value: "2"
+        value: "6"
       - key: STORAGE_BACKEND
         value: s3
       - key: SIGNUP_ENABLED
