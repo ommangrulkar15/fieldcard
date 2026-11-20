@@ -119,7 +119,6 @@ Stated plainly, so nobody finds them by surprise:
 - **No email, so no "forgot password".** An admin resets passwords for accounts they created.
 - **Online only.** No offline queue.
 - **No "Import from File"**, no billing.
-- **CI actions are referenced by tag**, not pinned to commit SHAs.
 - **Exports stop at 20,000 rows** (the response carries an `X-Export-Truncated` header).
 - **Deleting a job is a soft delete**; its photo files stay in storage.
 - **The PDF job card is a clean generic layout**, not a copy of any client's printed form.
