@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { Logo } from '../components/icons'
-import { CASE_STUDY_URL } from './links'
+import { CASE_STUDY_URL, LIVE_APP_URL } from './links'
 import DemoStage from './DemoStage'
 import './landing.css'
 
@@ -343,6 +343,14 @@ function TrialSection() {
       <p data-reveal style={idx(1)} className="mt-6 max-w-2xl text-xl leading-8">
         This is the real app, so you can see how it looks: log a job on the crew phone, then watch it arrive on the office laptop.
       </p>
+      <div data-reveal style={idx(1)} className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <a href={LIVE_APP_URL} className="fc-btn fc-btn-deep" target="_blank" rel="noopener">
+          Open the live app
+        </a>
+        <span className="text-base text-[color:var(--fc-ink)]">
+          Real server and database, sample data. The first visit can take up to a minute to wake.
+        </span>
+      </div>
       <div data-reveal style={idx(2)} className="mt-10">
         <DemoStage />
       </div>
