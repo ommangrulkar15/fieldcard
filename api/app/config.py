@@ -38,6 +38,12 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+# Values pasted into a hosting dashboard often carry a trailing newline or space; in a database URL
+# that becomes part of the database name ("postgres\n" does not exist).
+settings.database_url = settings.database_url.strip()
+settings.s3_access_key = settings.s3_access_key.strip()
+settings.s3_secret_key = settings.s3_secret_key.strip()
+
 # Supabase and most hosts hand out "postgresql://" (or "postgres://"); SQLAlchemy needs the driver named.
 for _prefix in ("postgres://", "postgresql://"):
     if settings.database_url.startswith(_prefix):
