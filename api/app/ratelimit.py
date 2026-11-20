@@ -5,6 +5,7 @@ is ever scaled to several instances, swap `Limiter` for a shared store (Redis or
 touching the callers.
 """
 
+import logging
 import time
 from collections import defaultdict, deque
 
@@ -70,12 +71,20 @@ PER_ACCOUNT_FAILURES = Limiter(5, 300)
 LIMITERS = (PER_ADDRESS, PER_ACCOUNT_FAILURES)
 
 
+_logged_chain = False
+
+
 def client_address(request: Request) -> str:
     """The address the platform's proxy saw. Only trust X-Forwarded-For when told to."""
     from app.config import settings
 
+    global _logged_chain
     if settings.trust_proxy_hops > 0:
         forwarded = [p.strip() for p in request.headers.get("x-forwarded-for", "").split(",") if p.strip()]
+        if not _logged_chain:  # once per process: lets the operator check TRUST_PROXY_HOPS against reality
+            _logged_chain = True
+            logging.getLogger("fieldcard").warning("proxy chain: %d entries %s, using index -%d",
+                                                  len(forwarded), forwarded, settings.trust_proxy_hops)
         if len(forwarded) >= settings.trust_proxy_hops:
             return forwarded[-settings.trust_proxy_hops]  # the hop our own proxy appended, not a client-supplied one
     return request.client.host if request.client else "unknown"
