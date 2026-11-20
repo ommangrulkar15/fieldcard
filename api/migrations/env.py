@@ -1,4 +1,3 @@
-import os
 
 from alembic import context
 from sqlalchemy import create_engine
@@ -12,7 +11,8 @@ target_metadata = Base.metadata
 
 def _url() -> str:
     # An explicit URL on the Alembic config (used by tests) wins over the environment.
-    return config.get_main_option("sqlalchemy.url") or os.environ.get("DATABASE_URL") or settings.database_url
+    # settings.database_url already reads DATABASE_URL and names the psycopg driver for plain postgresql:// URLs.
+    return config.get_main_option("sqlalchemy.url") or settings.database_url
 
 
 def run_migrations_online() -> None:
