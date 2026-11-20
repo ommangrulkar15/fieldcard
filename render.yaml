@@ -46,7 +46,7 @@ services:
       - key: S3_SECRET_KEY
         sync: false
       - key: CORS_ORIGINS        # calls arrive same-origin through the static site's /api proxy
-        value: https://fieldcard-web.onrender.com
+        value: https://fieldcard-web-qxgu.onrender.com
 
   - type: web
     name: fieldcard-web
@@ -63,7 +63,7 @@ services:
       # Rules match in order. Must point at the API's public onrender.com address.
       - type: rewrite
         source: /api/*
-        destination: https://fieldcard-api.onrender.com/*
+        destination: https://fieldcard-api-qxgu.onrender.com/*
       - type: rewrite
         source: /*
         destination: /index.html
