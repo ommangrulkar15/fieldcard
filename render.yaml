@@ -1,5 +1,6 @@
-# Render Blueprint for the API. Free plan: the service sleeps after 15 minutes idle and takes
-# up to a minute to wake; the web app says so while it waits.
+# Render Blueprint: the API (Docker web service) and the web app (static site). Free plan: the API
+# sleeps after 15 minutes idle and takes up to a minute to wake; the web app says so while it waits.
+# The static site proxies /api/* to the API, so the sign-in cookie is first-party.
 services:
   - type: web
     name: fieldcard-api
@@ -7,7 +8,10 @@ services:
     dockerfilePath: ./api/Dockerfile
     dockerContext: ./api
     plan: free
+    region: singapore           # next to the Supabase project (ap-southeast-1)
     healthCheckPath: /health
+    buildFilter:
+      paths: ["api/**"]
     envVars:
       - key: ENV
         value: prod
@@ -17,7 +21,7 @@ services:
         value: "true"
       - key: COOKIE_PATH
         value: /api/auth
-      # Browser -> Vercel (/api rewrite) -> Render -> API: two proxies, so the visitor's address is
+      # Browser -> static site (/api rewrite) -> Render -> API: two proxies, so the visitor's address is
       # the second-to-last X-Forwarded-For entry. With 1, every visitor shares Vercel's address and
       # the sign-in rate limit would throttle them all together. Re-check after any hosting change.
       - key: TRUST_PROXY_HOPS
@@ -28,18 +32,54 @@ services:
         value: "false"
       - key: DEMO_ENABLED
         value: "true"
-      # Set these in the Render dashboard (sync: false keeps them out of git):
+      # Secrets: set in the Render dashboard (sync: false keeps them out of git):
       - key: DATABASE_URL        # Supabase SESSION pooler string (port 5432, IPv4). Not the direct one (IPv6 only) or the transaction pooler
         sync: false
       - key: S3_ENDPOINT
-        sync: false
+        value: https://gnchrdxypgfejsrgstes.supabase.co/storage/v1/s3
       - key: S3_BUCKET
-        sync: false
+        value: job-photos
       - key: S3_REGION
-        sync: false
+        value: ap-southeast-1
       - key: S3_ACCESS_KEY
         sync: false
       - key: S3_SECRET_KEY
         sync: false
-      - key: CORS_ORIGINS        # your Vercel URL; the /api proxy makes calls same-origin anyway
-        sync: false
+      - key: CORS_ORIGINS        # calls arrive same-origin through the static site's /api proxy
+        value: https://fieldcard-web.onrender.com
+
+  - type: web
+    name: fieldcard-web
+    runtime: static
+    rootDir: web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    buildFilter:
+      paths: ["web/**"]
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+    routes:
+      # Rules match in order. Must point at the API's public onrender.com address.
+      - type: rewrite
+        source: /api/*
+        destination: https://fieldcard-api.onrender.com/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
