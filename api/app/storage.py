@@ -49,7 +49,7 @@ class LocalStorage:
 
 
 class S3Storage:
-    """Not exercised in the test suite (needs a real bucket); see the README's deployment notes."""
+    """Tested against a local S3 server (moto) in tests/test_s3_storage.py."""
 
     def __init__(self):
         import boto3
@@ -62,7 +62,8 @@ class S3Storage:
             region_name=settings.s3_region,
             aws_access_key_id=settings.s3_access_key,
             aws_secret_access_key=settings.s3_secret_key,
-            config=Config(signature_version="s3v4", retries={"max_attempts": 3}),
+            # Supabase Storage (and most non-AWS S3 endpoints) only answers path-style URLs.
+            config=Config(signature_version="s3v4", s3={"addressing_style": "path"}, retries={"max_attempts": 3}),
         )
 
     def put(self, key: str, data: bytes) -> None:

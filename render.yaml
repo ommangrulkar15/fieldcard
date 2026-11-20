@@ -17,8 +17,11 @@ services:
         value: "true"
       - key: COOKIE_PATH
         value: /api/auth
+      # Browser -> Vercel (/api rewrite) -> Render -> API: two proxies, so the visitor's address is
+      # the second-to-last X-Forwarded-For entry. With 1, every visitor shares Vercel's address and
+      # the sign-in rate limit would throttle them all together. Re-check after any hosting change.
       - key: TRUST_PROXY_HOPS
-        value: "1"
+        value: "2"
       - key: STORAGE_BACKEND
         value: s3
       - key: SIGNUP_ENABLED
@@ -26,7 +29,7 @@ services:
       - key: DEMO_ENABLED
         value: "true"
       # Set these in the Render dashboard (sync: false keeps them out of git):
-      - key: DATABASE_URL        # Supabase DIRECT or session-pooler string, not the transaction pooler (migrations)
+      - key: DATABASE_URL        # Supabase SESSION pooler string (port 5432, IPv4). Not the direct one (IPv6 only) or the transaction pooler
         sync: false
       - key: S3_ENDPOINT
         sync: false

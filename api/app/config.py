@@ -38,6 +38,11 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+# Supabase and most hosts hand out "postgresql://" (or "postgres://"); SQLAlchemy needs the driver named.
+for _prefix in ("postgres://", "postgresql://"):
+    if settings.database_url.startswith(_prefix):
+        settings.database_url = "postgresql+psycopg://" + settings.database_url[len(_prefix):]
+
 
 def check_production_settings() -> None:
     """Fail closed: never run production on the development signing key."""

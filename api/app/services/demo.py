@@ -9,9 +9,9 @@ workspace can be reset to its seed state with `python -m app.seed --reset`.
 import random
 import secrets
 import uuid
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.demo_guard import DEMO_DOMAIN
@@ -24,6 +24,14 @@ from app.storage import Storage
 
 DEMO_ROLES = {"admin": "Asha Demo", "supervisor": "Sam Demo", "crew": "Chris Demo"}
 WORKSPACE_NAME = "Demo Electricals"
+# Visitors change the shared demo. The first demo sign-in after this long rebuilds it from the
+# seed, so nobody needs a scheduled job (or database credentials outside the API) to tidy it.
+RESET_AFTER = timedelta(hours=24)
+RESET_LOCK = 724_601  # arbitrary constant for pg_advisory_xact_lock
+
+
+def _is_stale(workspace: Workspace) -> bool:
+    return datetime.now(timezone.utc) - workspace.created_at > RESET_AFTER
 
 WORK = [
     "Replace damaged 11kV insulator on pole {n}", "Re-conductor LT line between poles {n} and {m}",
@@ -98,9 +106,21 @@ def seed(db: Session, job_count: int = 45) -> Workspace:
 def demo_login(db: Session, storage: Storage, role: str) -> User:
     if role not in DEMO_ROLES:
         raise NotFound("Unknown demo role")
-    if _demo_workspace(db) is None:
-        reset(db, storage)
-        seed(db)
+    workspace = _demo_workspace(db)
+    if workspace is None or _is_stale(workspace):
+        # Many visitors can arrive at once: only one rebuilds, the others wait, then reuse it.
+        # The lock lives on its own connection because reset and seed commit as they go.
+        with db.get_bind().connect() as lock:
+            lock.execute(text("SELECT pg_advisory_lock(:key)"), {"key": RESET_LOCK})
+            try:
+                db.expire_all()
+                workspace = _demo_workspace(db)
+                if workspace is None or _is_stale(workspace):
+                    reset(db, storage)
+                    seed(db)
+            finally:
+                lock.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": RESET_LOCK})
+                lock.commit()
     user = db.scalar(select(User).where(User.email == f"{role}@{DEMO_DOMAIN}"))
     if user is None:
         raise NotFound("Demo is not available")

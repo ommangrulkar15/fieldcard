@@ -95,3 +95,32 @@ def test_reset_rebuilds_the_demo_and_removes_visitor_photos(make_client, demo_on
     assert not list((tmp_path / "photos").rglob("*.webp"))
     demo.seed(db)
     assert demo_client(make_client, "admin").get("/auth/me").json()["workspaces"][0]["id"] != ws
+
+
+def test_a_day_old_demo_rebuilds_itself_on_the_next_sign_in(make_client, demo_on, db):
+    from sqlalchemy import update
+
+    from app.models import Workspace
+
+    first = demo_client(make_client, "admin").get("/auth/me").json()["workspaces"][0]["id"]
+    again = demo_client(make_client, "crew").get("/auth/me").json()["workspaces"][0]["id"]
+    assert again == first  # fresh: reused, not rebuilt
+    db.execute(update(Workspace).where(Workspace.id == first).values(created_at=text_now_minus_days(2)))
+    db.commit()
+    rebuilt = demo_client(make_client, "admin").get("/auth/me").json()["workspaces"][0]["id"]
+    assert rebuilt != first
+
+
+def test_concurrent_first_sign_ins_build_one_demo(make_client, demo_on):
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(4) as pool:
+        ids = list(pool.map(lambda role: demo_client(make_client, role).get("/auth/me").json()["workspaces"][0]["id"],
+                            ["admin", "crew", "supervisor", "admin"]))
+    assert len(set(ids)) == 1
+
+
+def text_now_minus_days(days: int):
+    from sqlalchemy import text
+
+    return text(f"now() - interval '{int(days)} days'")
